@@ -1,0 +1,127 @@
+import tkinter as tk
+import time
+import RPi.GPIO as GPIO
+
+
+# Servo motorun bağlı olduğu GPIO pin numarası
+servo_pin = 18
+
+# GPIO pinlerini BCM modunda ayarla
+GPIO.setmode(GPIO.BCM)
+
+# Servo motorun bağlı olduğu pinin çıkış olarak ayarla
+GPIO.setup(servo_pin, GPIO.OUT)
+
+# PWM (Pulse-Width Modulation) nesnesi oluştur ve frekansı ayarla
+pwm = GPIO.PWM(servo_pin, 50)
+
+# PWM sinyalini başlat
+pwm.start(0)
+
+
+# Servo motoru 0 derece pozisyonda başlat
+def set_servo_angle(angle):
+    duty = angle / 18 + 2
+    GPIO.output(servo_pin, True)
+    pwm.ChangeDutyCycle(duty)
+    time.sleep(1)
+    GPIO.output(servo_pin, False)
+    pwm.ChangeDutyCycle(0)
+
+root = tk.Tk()
+root.geometry("300x250")
+root.title("Piri Madeter")
+ust=300
+ust2=320
+alt=250
+root.config(background="#545050")
+root.maxsize(width=ust,height=alt)
+root.minsize(width=ust,height=alt)
+
+def giris():
+    sif=abc.get()
+    root.destroy()
+    if "TC" in sif:
+        arayuz=tk.Tk()
+        arayuz.geometry("300x270")
+        arayuz.title("Kontrol Paneli")
+        arayuz.config(background="#545050")
+        yerel_saat=time.asctime().upper()
+
+        frame1=tk.Frame(arayuz,bg="#248046")
+        frame1.place(x=0,y=0)
+        frame1.config(width=320,height=35,borderwidth=1,relief="solid")
+
+        arayuz.minsize(width=ust2,height=alt)
+        arayuz.maxsize(width=ust2,height=alt)
+                
+        def yon():
+            print("sola dönülüyor")
+            solangle=set_servo_angle(0)
+            labeln3 = tk.Label(text="Mevcut Yön:" + " " + "0",bg="#248046", fg="white",width=14,height=1,borderwidth=1,relief="solid")
+            labeln3.place(x=10, y=200)
+        def sag():
+            print("sağa dönülüyor")
+            sagangle=set_servo_angle(180)
+            labeln4 = tk.Label(text="Mevcut Yön:" + " " + "180",bg="#248046", fg="white",width=14,height=1,borderwidth=1,relief="solid")
+            labeln4.place(x=10, y=200)
+        def duz():
+            print("Düz Gidiliyor")
+            duzangle=set_servo_angle(90)
+            labeln5 = tk.Label(text="Mevcut Yön:" + " " + "90",bg="#248046", fg="white",width=14,height=1,borderwidth=1,relief="solid")
+            labeln5.place(x=10, y=200)
+            
+        kullanici_isim=kullanici_varligi.get().upper()
+
+        labeln1 = tk.Label(text="Kullanıcı:" + " "+kullanici_isim, bg="#248046", fg="white")
+        labeln1.place(x=10, y=7)
+
+        labeln2 = tk.Label(text="Oturum Başlangıcı:" + " " + yerel_saat, bg="#545050", fg="white")
+        labeln2.place(x=10, y=225)
+
+        yonduz=tk.Button(text="Düz Git",command=duz)
+        yonduz.place(x=120,y=85)
+        
+        yonsag1=tk.Button(text="Sağa Dön",command=sag)
+        yonsag1.place(x=160,y=120)
+        
+        yonsol=tk.Button(text="Sola Dön",command=yon)
+        yonsol.place(x=75,y=120)
+        
+        arayuz.mainloop()
+
+    else :
+        hello=tk.Tk()
+        hello.geometry("300x250")
+        hello.title("Güvenlik Açığı")
+        hello.config(background="#545050")
+        hello.maxsize(width=ust, height=alt)
+        hello.minsize(width=ust, height=alt)
+
+        sa1=tk.Label(text="Girdiğiniz şifre yanlış veya eksik!",bg="#545050",fg="#BF3939")
+        sa1.place(x=40,y=100)
+
+
+buton1=tk.Button(text="Gönder",bg="#545050",fg="white",command=giris)
+buton1.place(x=75,y=110)
+
+abc=tk.StringVar()
+giris1 = tk.Entry(textvariable=abc,validatecommand=buton1)
+giris1.place(x=10,y=35)
+
+label1=tk.Label(text="Lütfen Şifreyi giriniz",bg="#545050",fg="white")
+label1.place(x=10,y=10)
+
+label2=tk.Label(text="Kullanıcının ismi",bg="#545050",fg="white")
+label2.place(x=10,y=60)
+
+kullanici_varligi=tk.StringVar()
+giris2=tk.Entry(textvariable=kullanici_varligi,validatecommand=buton1)
+giris2.place(x=10,y=85)
+
+
+
+root.mainloop()
+# PWM sinyalini durdur ve GPIO pinlerini temizle
+pwm.stop()
+GPIO.cleanup()
